@@ -23,6 +23,11 @@ class CustomStorageUtil {
 
   FirebaseStorage storage = FirebaseStorage.instance;
 
+  /// Upload a file to project's Firebase storage.
+  ///
+  /// The appropriate source argument must be provided (i.e.: if
+  /// [UploadDataSource] == [UploadDataSource.bytes],  [bytes] must be provided
+  /// )
   Future<String?> upload({
     required String uploadPath,
     required UploadDataSource uploadDataSource,
@@ -80,6 +85,40 @@ class CustomStorageUtil {
       await storage.ref(uploadPath).putData(bytes).whenComplete(() {});
     } on FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
+      throw e.code;
+    }
+  }
+
+  /// Delete a file from storage from its storage path.
+  Future<void> deleteFromPath({required String path}) async {
+    Reference ref = storage.ref(path);
+    try {
+      await ref.delete();
+    } on FirebaseException catch (e) {
+      throw e.code;
+    }
+  }
+
+  /// Delete a file from storage from its storage reference [url] (i.e. the url
+  /// returned from `ref.getDownloadURL()`).
+  Future<void> deleteFromUrl({required String url}) async {
+    Reference ref = storage.refFromURL(url);
+    try {
+      await ref.delete();
+    } on FirebaseException catch (e) {
+      throw e.code;
+    }
+  }
+
+  /// Delete file reference from its storage url or from storage path.
+  ///
+  /// Either [url] or [path] must be provided.
+  Future<void> delete({String? url, String? path}) async {
+    assert((url != null) ^ (path != null), "Must provide either url or path");
+
+    try {
+      url != null ? deleteFromUrl(url: url) : deleteFromPath(path: path!);
+    } on FirebaseException catch (e) {
       throw e.code;
     }
   }
