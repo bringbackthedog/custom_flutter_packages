@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:address_autocomplete_util/address_autocomplete_util.dart';
 import 'package:address_autocomplete_util/address_result_model.dart';
+import 'package:address_autocomplete_util/places_exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -53,16 +54,21 @@ class _MyHomePageState extends State<MyHomePage> {
         child: TextFormField(
           focusNode: _textFieldFocusNode,
           onChanged: (value) async {
-            AddressResults addressResults =
-                await AddressFinder.instance.fetchAddress(
-              addressToLookup: value,
-              placesApiKey: apiKey,
-              sessionToken: sessionToken,
-            );
+            AddressResults addressResults;
 
-            addressResults.forEach((String predictedAddress) {
-              log(predictedAddress);
-            });
+            try {
+              addressResults = await AddressFinder.instance.fetchAddress(
+                addressToLookup: value,
+                placesApiKey: apiKey,
+                sessionToken: sessionToken,
+              );
+
+              addressResults.forEach((String predictedAddress) {
+                log(predictedAddress);
+              });
+            } on PlacesException catch (e) {
+              log(e.toString());
+            }
           },
           decoration: InputDecoration(
             enabledBorder: outlineInputBorder,

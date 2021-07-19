@@ -3,6 +3,8 @@ library address_autocomplete_util;
 import 'dart:convert';
 import 'package:address_autocomplete_util/address_result_model.dart';
 import 'package:address_autocomplete_util/constants.dart';
+import 'package:address_autocomplete_util/enums.dart';
+import 'package:address_autocomplete_util/places_exceptions.dart';
 import 'package:http/http.dart' as http;
 
 /// Calls on Google Places API to autocomplete the address field.
@@ -12,8 +14,6 @@ class AddressFinder {
   AddressFinder._();
   static AddressFinder _instance = AddressFinder._();
   static AddressFinder instance = _instance;
-
-  String? addressResultString;
 
   /// Returns encoded Url endpoint.
   /// [addressToLookup] is a single string of the address sent to the autocomplete API.
@@ -48,13 +48,21 @@ class AddressFinder {
         apiKey: placesApiKey,
         sessionToken: sessionToken);
 
-    http.Response response = await http.get(uri);
+    http.Response apiResponse = await http.get(uri);
 
-    /// TODO: Add more detailed error codes
-    if (response.statusCode == 200) {
-      return AddressResults.fromJson(jsonDecode(response.body));
+    if (apiResponse.statusCode == 200) {
+      AddressResults addressResults =
+          AddressResults.fromJson(jsonDecode(apiResponse.body));
+
+      bool placesReturnValidObject =
+          addressResults.requestStatus == PlacesStatusCodes.OK ||
+              addressResults.requestStatus == PlacesStatusCodes.ZERO_RESULTS;
+
+      if (placesReturnValidObject)
+        return addressResults;
+      else
+        throw PlacesException(addressResults.requestStatus.value);
     } else {
-      /// FIXME: Does not throw on empty api key
       throw "Failed to fetch address from Google places API";
     }
   }
