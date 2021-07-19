@@ -40,7 +40,23 @@ class AddressFinder {
     return Uri.https(kUrlAuthority, kUrlPath, queryParameters);
   }
 
-  /// [addressToLookup] is a single string of the address sent to the autocomplete API.
+  /// [addressToLookup] is a single string of the address sent to the
+  /// autocomplete API.
+  ///
+  /// [sessionToken] a unique identifier for the session. Queries with matching
+  /// sessionTokens will count as a single API call.
+  ///
+  /// Recommended [sessionToken] guidelines
+  /// (see [Session tokens
+  /// documentation](https://developers.google.com/maps/documentation/places/web-service/autocomplete?hl=en_US#session_tokens)):
+  /// - Use session tokens for all autocomplete sessions.
+  /// - Generate a fresh token for each session. Using a version 4 UUID is recommended.
+  /// - Ensure that the API key(s) used for all Place Autocomplete and Place Details requests within a session belong to the same Cloud Console project.
+  /// - Be sure to pass a unique session token for each new session. Using the same token for more than one session will result in each request being billed individually.
+
+  ///
+  ///
+  ///
   Future<AddressResults> fetchAddress({
     required String addressToLookup,
     String? sessionToken,
