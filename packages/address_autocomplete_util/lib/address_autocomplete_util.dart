@@ -15,6 +15,9 @@ class AddressFinder {
   static AddressFinder _instance = AddressFinder._();
   static AddressFinder instance = _instance;
 
+  String? _apiKey;
+  set apiKey(String key) => _apiKey = key;
+
   /// Returns encoded Url endpoint.
   /// [addressToLookup] is a single string of the address sent to the autocomplete API.
   ///
@@ -40,12 +43,17 @@ class AddressFinder {
   /// [addressToLookup] is a single string of the address sent to the autocomplete API.
   Future<AddressResults> fetchAddress({
     required String addressToLookup,
-    required String placesApiKey,
     String? sessionToken,
   }) async {
+    //
+    if (_apiKey == null) {
+      throw Exception(
+          'No API key provided. Set your key first using `AddressFinder.apiKey = APIKEY`. ');
+    }
+
     Uri uri = _getUri(
         addressToLookup: addressToLookup,
-        apiKey: placesApiKey,
+        apiKey: _apiKey!,
         sessionToken: sessionToken);
 
     http.Response apiResponse = await http.get(uri);
@@ -62,6 +70,7 @@ class AddressFinder {
         return addressResults;
       else
         throw PlacesException(addressResults.requestStatus.value);
+      //
     } else {
       throw "Failed to fetch address from Google places API";
     }

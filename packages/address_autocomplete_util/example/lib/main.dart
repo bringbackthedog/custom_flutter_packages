@@ -10,6 +10,8 @@ import 'package:uuid/uuid.dart';
 const apiKey = '';
 
 void main() {
+  // Call this anytime *before* using the service.
+  AddressFinder.instance.apiKey = apiKey;
   runApp(MyApp());
 }
 
@@ -17,7 +19,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -32,19 +33,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Uuid uuid = Uuid();
-  late String sessionToken;
+  String sessionToken = Uuid().v4();
   var _textFieldFocusNode = FocusNode();
 
   var outlineInputBorder = OutlineInputBorder(
-      borderSide: BorderSide(
-    color: Colors.black,
-    width: 2.5,
-  ));
+    borderSide: BorderSide(color: Colors.black, width: 2.5),
+  );
 
   @override
   Widget build(BuildContext context) {
-    sessionToken = uuid.v4();
+    // sessionToken = uuid.v4();
 
     return Scaffold(
       appBar: AppBar(
@@ -59,7 +57,6 @@ class _MyHomePageState extends State<MyHomePage> {
             try {
               addressResults = await AddressFinder.instance.fetchAddress(
                 addressToLookup: value,
-                placesApiKey: apiKey,
                 sessionToken: sessionToken,
               );
 
