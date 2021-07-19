@@ -1,7 +1,4 @@
 ## [Unreleased]
-### Added
-- `deleteFromPath()`, `deleteFromUrl()`, `delete()` methods. 
-
 
 ## [0.0.1] - 2021-07-19
 Initial release.
