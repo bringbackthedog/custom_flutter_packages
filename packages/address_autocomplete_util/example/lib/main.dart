@@ -53,14 +53,14 @@ class _MyHomePageState extends State<MyHomePage> {
         child: TextFormField(
           focusNode: _textFieldFocusNode,
           onChanged: (value) async {
-            AddressResult addressResult =
+            AddressResults addressResults =
                 await AddressFinder.instance.fetchAddress(
               addressToLookup: value,
               placesApiKey: apiKey,
               sessionToken: sessionToken,
             );
 
-            addressResult.predictions?.forEach((String predictedAddress) {
+            addressResults.forEach((String predictedAddress) {
               log(predictedAddress);
             });
           },

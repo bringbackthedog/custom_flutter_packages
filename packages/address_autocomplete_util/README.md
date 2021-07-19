@@ -1,14 +1,29 @@
 # address_autocomplete_util
 
-A new Flutter package project.
+Utilility for calls to **[Google's autocomplete]((https://developers.google.com/maps/documentation/places/web-service/autocomplete?hl=en_US))** API from Flutter. 
 
-## Getting Started
+Use `AddressFinder.fetchAddress()` future to get a list of address predictions. 
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+e.g.:
+```dart
+       TextFormField(
+          focusNode: _textFieldFocusNode,
+          onChanged: (value) async {
+            AddressResults addressResults =
+                await AddressFinder.instance.fetchAddress(
+              addressToLookup: value,
+              placesApiKey: apiKey,
+              sessionToken: sessionToken,
+            );
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+            addressResults.forEach((String predictedAddress) {
+              log(predictedAddress);
+            });
+          },
+        ),
+```
+
+This prints every prediction to the console. 
+
+Note that it is safe to call the API multiple time, here using `.fetchAddress` in the TextField's `onChanged`.  
+As long as all the requests within one session have the same `sessionToken`, these will count as a single API call. See the [documentation for Places API](https://developers.google.com/maps/documentation/places/web-service/autocomplete?hl=en_US#session_tokens) for more details about session tokens.

@@ -1,12 +1,14 @@
+import 'dart:collection';
+
 /// Extracts the address string from Google Places API response.
-class AddressResult {
-  AddressResult({
-    this.predictions,
-  });
+class AddressResults extends ListMixin<String> {
+  AddressResults({
+    List<String>? predictions,
+  }) : this.predictions = predictions ??= [];
 
-  List<String>? predictions;
+  List<String> predictions;
 
-  factory AddressResult.fromJson(Map<String, dynamic> json) {
+  factory AddressResults.fromJson(Map<String, dynamic> json) {
     List<Map<String, dynamic>> predictionsMap =
         (json["predictions"] as List).cast<Map<String, dynamic>>();
     List<String> _predictions = predictionsMap
@@ -14,6 +16,16 @@ class AddressResult {
             predictionJson['description'] as String)
         .toList();
 
-    return AddressResult(predictions: _predictions);
+    return AddressResults(predictions: _predictions);
   }
+
+  @override
+  int get length => predictions.length;
+  set length(newLength) => predictions.length = newLength;
+
+  @override
+  String operator [](int index) => predictions[index];
+
+  @override
+  void operator []=(int index, value) => predictions[index] = value;
 }

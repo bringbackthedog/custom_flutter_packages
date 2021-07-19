@@ -38,7 +38,7 @@ class AddressFinder {
   }
 
   /// [addressToLookup] is a single string of the address sent to the autocomplete API.
-  Future<AddressResult> fetchAddress({
+  Future<AddressResults> fetchAddress({
     required String addressToLookup,
     required String placesApiKey,
     String? sessionToken,
@@ -52,8 +52,10 @@ class AddressFinder {
 
     /// TODO: Add more detailed error codes
     if (response.statusCode == 200) {
-      return AddressResult.fromJson(jsonDecode(response.body));
-    } else
+      return AddressResults.fromJson(jsonDecode(response.body));
+    } else {
+      /// FIXME: Does not throw on empty api key
       throw "Failed to fetch address from Google places API";
+    }
   }
 }
