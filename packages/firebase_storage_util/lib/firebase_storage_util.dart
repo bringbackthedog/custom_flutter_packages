@@ -17,17 +17,30 @@ enum UploadDataSource {
   bytes,
 }
 
-class CustomStorageUtil {
-  CustomStorageUtil._();
-  static final instance = CustomStorageUtil._();
+class FirebaseStorageUtil {
+  FirebaseStorageUtil._();
+  static final instance = FirebaseStorageUtil._();
 
   FirebaseStorage storage = FirebaseStorage.instance;
 
   /// Upload a file to project's Firebase storage.
   ///
-  /// The appropriate source argument must be provided (i.e.: if
-  /// [UploadDataSource] == [UploadDataSource.bytes],  [bytes] must be provided
-  /// )
+  /// [uploadPath] is the path where the file should be upload in firebase
+  /// storage.
+  ///
+  /// The appropriate source argument must be provided.
+  ///
+  /// i.e.:
+  ///
+  ///   if [UploadDataSource] == [UploadDataSource.bytes],  [bytes] must be
+  ///    provided
+  ///
+  ///   if [UploadDataSource] == [UploadDataSource.file],  [file] must be
+  ///    provided
+  ///
+  ///   if [UploadDataSource] == [UploadDataSource.path],  [path] must be
+  ///    provided
+  ///
   Future<String?> upload({
     required String uploadPath,
     required UploadDataSource uploadDataSource,
@@ -41,15 +54,15 @@ class CustomStorageUtil {
     switch (uploadDataSource) {
       case UploadDataSource.path:
         assert(path != null);
-        await _uploadFromPath(uploadPath: uploadPath, path: path!);
+        await uploadFromPath(uploadPath: uploadPath, path: path!);
         break;
       case UploadDataSource.file:
         assert(file != null);
-        await _uploadFromFile(uploadPath: uploadPath, file: file!);
+        await uploadFromFile(uploadPath: uploadPath, file: file!);
         break;
       case UploadDataSource.bytes:
         assert(bytes != null);
-        _uploadFromBytes(uploadPath: uploadPath, bytes: bytes!);
+        uploadFromBytes(uploadPath: uploadPath, bytes: bytes!);
 
         break;
     }
@@ -59,30 +72,58 @@ class CustomStorageUtil {
     return downloadUrl;
   }
 
-  Future<void> _uploadFromPath(
-      {required String uploadPath, required String path}) async {
+  Future<String?> uploadFromPath({
+    required String uploadPath,
+    required String path,
+    bool getDownloadUrl = false,
+  }) async {
+    String? downloadUrl;
     try {
       await storage.ref(uploadPath).putFile(File(path)).whenComplete(() {});
+
+      if (getDownloadUrl)
+        downloadUrl = await storage.ref(uploadPath).getDownloadURL();
+
+      return downloadUrl;
     } on FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
       throw e.code;
     }
   }
 
-  Future<void> _uploadFromFile(
-      {required String uploadPath, required File file}) async {
+  Future<String?> uploadFromFile({
+    required String uploadPath,
+    required File file,
+    bool getDownloadUrl = false,
+  }) async {
+    String? downloadUrl;
     try {
       await storage.ref(uploadPath).putFile(file).whenComplete(() {});
+
+      if (getDownloadUrl)
+        downloadUrl = await storage.ref(uploadPath).getDownloadURL();
+
+      return downloadUrl;
     } on FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
       throw e.code;
     }
   }
 
-  Future<void> _uploadFromBytes(
-      {required String uploadPath, required Uint8List bytes}) async {
+  Future<String?> uploadFromBytes({
+    required String uploadPath,
+    required Uint8List bytes,
+    bool getDownloadUrl = false,
+  }) async {
+    String? downloadUrl;
+
     try {
       await storage.ref(uploadPath).putData(bytes).whenComplete(() {});
+
+      if (getDownloadUrl)
+        downloadUrl = await storage.ref(uploadPath).getDownloadURL();
+
+      return downloadUrl;
     } on FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
       throw e.code;
